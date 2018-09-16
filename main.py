@@ -10,22 +10,24 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import time
-use_cuda = True
+import ray
+use_cuda = False
 device = torch.device("cuda" if use_cuda else "cpu")
-def get_dataset():
+def get_dataset(splits):
+    batchsize =int(60000/ splits)
     train_loader = torch.utils.data.DataLoader(
         datasets.MNIST('../data', train=False, download=True,
                        transform=transforms.Compose([
                            transforms.ToTensor(),
                            transforms.Normalize((0.1307,), (0.3081,))
                        ])),
-        batch_size=60000, shuffle=True)
+        batch_size=batchsize, shuffle=True)
     test_loader = torch.utils.data.DataLoader(
         datasets.MNIST('../data', train=False, transform=transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize((0.1307,), (0.3081,))
         ])),
-        batch_size=60000, shuffle=True)
+        batch_size=batchsize, shuffle=True)
 
     return  train_loader, test_loader
 def eval(model,test_loader):
@@ -75,7 +77,8 @@ def save_sol_state(model):
 def main():
     print("GA Evolve a nueral network")
     print("---------------------------")
-    train_loader,test_loader =get_dataset()
+    ray.init(num_cpus=8)
+    train_loader,test_loader =get_dataset(8)
     pop = Population(train_loader=train_loader)
 
     #pop.indv_batch()

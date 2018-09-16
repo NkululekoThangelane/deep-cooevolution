@@ -47,7 +47,7 @@ class Net(nn.Module):
             sz = param.cpu().data.numpy().flatten().shape[0]
             raw = pvec[count:count + sz]
             reshaped = raw.reshape(param.cpu().data.numpy().shape)
-            param.data = torch.from_numpy(reshaped).to(torch.device("cuda"))
+            param.data = torch.from_numpy(reshaped).to(torch.device("cpu"))
             count += sz
 
         return pvec
